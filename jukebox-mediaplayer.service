@@ -1,0 +1,13 @@
+[Unit]
+Description=Jukebox Mediaplayer Frontend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/path/to/jukebox-mediaplayer
+ExecStart=/usr/bin/serve -s dist -l 3000 --proxy https://your-backend-domain-or-ip:8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
