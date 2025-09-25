@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 const { Title, Text } = Typography;
 
 // API endpoints
-const API_BASE = 'http://192.168.68.104:8000';
+const API_BASE = '';
 const endpoints = {
   currentTrack: '/mediaplayer/current_track',
   playPause: '/mediaplayer/play_pause',
