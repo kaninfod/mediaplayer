@@ -4,8 +4,27 @@ set -ex
 
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 SERVICE_FILE="jukebox-mediaplayer.service"
+
 NODE_BIN="$(which node)"
 SERVE_BIN="$(which serve)"
+
+# Check Node.js version (require <= 20.x)
+NODE_VERSION=$($NODE_BIN --version | sed 's/v//')
+NODE_MAJOR=$(echo $NODE_VERSION | cut -d. -f1)
+if [ "$NODE_MAJOR" -ge 21 ]; then
+  echo "\nERROR: Node.js version $NODE_VERSION detected. Many frontend tools are not compatible with Node.js 21+ as of 2025."
+  echo "Please downgrade to Node.js 20.x (LTS) before continuing."
+  echo "Recommended (nvm):"
+  echo "  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash"
+  echo "  source ~/.bashrc"
+  echo "  nvm install 20"
+  echo "  nvm use 20"
+  echo "  nvm alias default 20"
+  echo "Or (NodeSource):"
+  echo "  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
+  echo "  sudo apt-get install -y nodejs"
+  exit 1
+fi
 
 if [ -z "$NODE_BIN" ]; then
   echo "Node.js is not installed. Please install Node.js first."
