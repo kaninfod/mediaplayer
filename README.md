@@ -48,15 +48,19 @@ npm run build
 - This creates a `dist/` directory with static files.
 
 ### 5. Serve the App with NPM Reverse Proxy
-- Install the `serve` package globally if you haven't:
+- Install the `serve` package globally if you haven't (use `sudo` for system-wide install):
   ```sh
-  npm install -g serve
+  sudo npm install -g serve
   ```
 - Start the static server with reverse proxy to backend API:
   ```sh
   serve -s dist -l 3000 --proxy https://your-backend-domain-or-ip:8000
   ```
 - The app will be available at `http://localhost:3000` (or your chosen port).
+
+**Troubleshooting:**
+- If you get a `command not found: serve` error, make sure your npm global bin directory (often `/usr/local/bin` or `/usr/bin`) is in your `PATH`.
+- You can check with `echo $PATH` and `npm bin -g`.
 
 ---
 

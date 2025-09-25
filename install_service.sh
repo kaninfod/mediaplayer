@@ -1,6 +1,6 @@
 #!/bin/bash
 # install_service.sh - Automated install and systemd setup for Jukebox Mediaplayer Frontend
-set -e
+set -ex
 
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 SERVICE_FILE="jukebox-mediaplayer.service"
@@ -12,9 +12,24 @@ if [ -z "$NODE_BIN" ]; then
   exit 1
 fi
 
+
+# Check for TypeScript compiler
+TSC_BIN="$(which tsc || true)"
 if [ -z "$SERVE_BIN" ]; then
   echo "Installing 'serve' globally..."
   npm install -g serve
+fi
+if [ -z "$TSC_BIN" ]; then
+  echo "Installing 'typescript' locally..."
+  npm install --save-dev typescript
+fi
+
+# Raspberry Pi 4 notes
+if grep -q 'Raspberry Pi' /proc/cpuinfo 2>/dev/null; then
+  echo "Detected Raspberry Pi."
+  echo "If you encounter memory issues during build, increase swap:"
+  echo "  sudo dphys-swapfile swapoff && sudo dphys-swapfile set 2048 && sudo dphys-swapfile swapon"
+  echo "Consider using Node.js LTS (v18+) from NodeSource or nvm for ARM."
 fi
 
 cd "$APP_DIR"

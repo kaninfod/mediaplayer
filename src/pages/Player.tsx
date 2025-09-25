@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Card, Typography, Space, Slider, Row, Col } from 'antd';
 import { PauseCircleOutlined, PlayCircleOutlined, StepForwardOutlined, StepBackwardOutlined, SoundOutlined } from '@ant-design/icons';
 import MusicModal from './MusicModal';
@@ -176,7 +176,7 @@ export default function Player() {
   if (isLoading) return <Card>Loading...</Card>;
   if (isError) return <Card>Error loading player info</Card>;
 
-  const track = data || {};
+  const track = data.current_track || {};
 
   // Modal content is now handled by MusicModal
 

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './App.css';
 import Player from './pages/Player';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
