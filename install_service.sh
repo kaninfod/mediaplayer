@@ -69,7 +69,7 @@ After=network.target
 Type=simple
 User=www-data
 WorkingDirectory=$APP_DIR
-ExecStart=$(which serve) -s dist -l 3000 --proxy https://your-backend-domain-or-ip:8000
+ExecStart=$(which serve) -s dist -l tcp://0.0.0.0:80 --proxy https://your-backend-domain-or-ip:8000
 Restart=always
 
 [Install]
@@ -84,4 +84,4 @@ sudo systemctl enable jukebox-mediaplayer
 sudo systemctl restart jukebox-mediaplayer
 
 echo "Jukebox Mediaplayer Frontend installed and running as a service!"
-echo "Visit http://localhost:3000 or your server's IP."
+echo "Visit http://<your-server-ip>/ in your browser. (Now served on port 80)"
