@@ -16,7 +16,7 @@ const endpoints = {
   prev: '/mediaplayer/previous_track',
   volumeUp: '/mediaplayer/volume_up',
   volumeDown: '/mediaplayer/volume_down',
-  artists: '/subsonic/artists',
+  artists: '/api/subsonic/artists',
   artist: (id: string) => `/api/subsonic/artist/${id}`,
   album: (id: string) => `/api/subsonic/album/${id}`,
   playAlbum: (id: string) => `/mediaplayer/play_album_from_albumid/${id}`,
