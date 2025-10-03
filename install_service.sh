@@ -69,7 +69,7 @@ After=network.target
 Type=simple
 User=www-data
 WorkingDirectory=$APP_DIR
-ExecStart=$(which serve) -s dist -l tcp://0.0.0.0:80 --proxy https://your-backend-domain-or-ip:8000
+ExecStart=$(which serve) -s dist -l tcp://0.0.0.0:80
 Restart=always
 
 [Install]
