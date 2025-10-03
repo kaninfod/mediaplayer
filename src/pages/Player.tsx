@@ -8,19 +8,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 const { Title, Text } = Typography;
 
 // API endpoints
-const API_BASE = '';
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 const endpoints = {
-  currentTrack: '/mediaplayer/current_track',
-  playPause: '/mediaplayer/play_pause',
-  next: '/mediaplayer/next_track',
-  prev: '/mediaplayer/previous_track',
-  volumeUp: '/mediaplayer/volume_up',
-  volumeDown: '/mediaplayer/volume_down',
-  artists: '/api/subsonic/artists',
+  currentTrack: '/api/mediaplayer/current_track',
+  playPause: '/api/mediaplayer/play_pause',
+  next: '/api/mediaplayer/next_track',
+  prev: '/api/mediaplayer/previous_track',
+  volumeUp: '/api/mediaplayer/volume_up',
+  volumeDown: '/api/mediaplayer/volume_down',
+  artists: '/api/api/subsonic/artists',
   artist: (id: string) => `/api/subsonic/artist/${id}`,
   album: (id: string) => `/api/subsonic/album/${id}`,
-  playAlbum: (id: string) => `/mediaplayer/play_album_from_albumid/${id}`,
-  playSong: (id: string) => `/mediaplayer/play_song/${id}`,
+  playAlbum: (id: string) => `/api/mediaplayer/play_album_from_albumid/${id}`,
+  playSong: (id: string) => `/api/mediaplayer/play_song/${id}`,
 };
 
 async function fetchCurrentTrack() {
