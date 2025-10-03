@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Card, Typography, Space, Slider, Row, Col } from 'antd';
 import { PauseCircleOutlined, PlayCircleOutlined, StepForwardOutlined, StepBackwardOutlined, SoundOutlined } from '@ant-design/icons';
 import MusicModal from './MusicModal';
+import { useEffect, useRef, useCallback } from 'react';
 import type { Artist, Album, Song } from './MusicModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -9,8 +10,17 @@ const { Title, Text } = Typography;
 
 // API endpoints
 const API_BASE = import.meta.env.VITE_API_BASE || '';
+// Helper to build WS URL from API_BASE
+function getWsUrl(path: string) {
+  if (!API_BASE) return path; // fallback
+  let base = API_BASE.replace(/^http/, 'ws');
+  // Remove trailing slash if present
+  if (base.endsWith('/')) base = base.slice(0, -1);
+  return `${base}${path}`;
+}
+
 const endpoints = {
-  currentTrack: '/api/mediaplayer/current_track',
+  currentTrack: getWsUrl('/ws/mediaplayer/current_track'),
   playPause: '/api/mediaplayer/play_pause',
   next: '/api/mediaplayer/next_track',
   prev: '/api/mediaplayer/previous_track',
@@ -23,10 +33,59 @@ const endpoints = {
   playSong: (id: string) => `/api/mediaplayer/play_song/${id}`,
 };
 
-async function fetchCurrentTrack() {
-  const res = await fetch(API_BASE + endpoints.currentTrack);
-  if (!res.ok) throw new Error('Failed to fetch current track');
-  return res.json();
+
+// Custom hook to get current track via WebSocket
+function useCurrentTrackWS(wsUrl: string) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const connect = useCallback(() => {
+    setIsLoading(true);
+    setIsError(false);
+    console.log('[WS] Connecting to', wsUrl);
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('[WS] Connected');
+      setIsLoading(false);
+    };
+    ws.onmessage = (event) => {
+      console.log('[WS] Message received:', event.data);
+      try {
+        const msg = JSON.parse(event.data);
+        // Only update data if message contains current_track
+        if (msg.current_track) {
+          setData(msg);
+          setIsError(false); // Clear error on valid message
+        }
+        // Otherwise, ignore (e.g., ping)
+      } catch (e) {
+        console.error('[WS] Failed to parse message', event.data);
+        setIsError(true);
+      }
+    };
+    ws.onerror = (err) => {
+      console.error('[WS] Error', err);
+      setIsError(true);
+      setIsLoading(false);
+    };
+    ws.onclose = (event) => {
+      console.log('[WS] Closed', event);
+      // Optionally, try to reconnect after a delay
+    };
+  }, [wsUrl]);
+
+  useEffect(() => {
+    connect();
+    return () => {
+      wsRef.current?.close();
+    };
+  }, [connect]);
+
+  return { data, isLoading, isError };
 }
 
 async function postAction(endpoint: string) {
@@ -55,11 +114,8 @@ async function fetchAlbum(id: string) {
 
 export default function Player() {
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['currentTrack'],
-    queryFn: fetchCurrentTrack,
-    refetchInterval: 2000,
-  });
+  // Use WebSocket for current track
+  const { data, isLoading, isError } = useCurrentTrackWS(endpoints.currentTrack);
 
   const mutation = useMutation({
     mutationFn: (endpoint: string) => postAction(endpoint),
@@ -176,7 +232,9 @@ export default function Player() {
   if (isLoading) return <Card>Loading...</Card>;
   if (isError) return <Card>Error loading player info</Card>;
 
-  const track = data.current_track || {};
+  console.log('data', data);
+  const track = data?.current_track || {};
+  const status = data?.status;
 
   // Modal content is now handled by MusicModal
 
@@ -209,7 +267,7 @@ export default function Player() {
               <Button
                 type="primary"
                 shape="circle"
-                icon={track.status === 'playing' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                icon={status === 'playing' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
                 size="large"
                 onClick={() => handleAction(endpoints.playPause)}
                 disabled={mutation.isPending}
